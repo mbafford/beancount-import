@@ -1,4 +1,39 @@
 """
+Handles importing Fifth Third bank mortgage transactions.
+
+I don't use this actively anymore (I have closed that particular account), so I'm not sure
+it makes sense to merge into the main beancount-import branch, but someone else might benefit
+from it.
+
+I didn't build an automated importer, but it would be really easy to build one. The API
+in question is:
+
+https://onlinebanking.53.com/mobile/v1/services/account/transaction/history?accountId=YOUR-ACCOUNT-UUID&includeTransFilters=false
+
+Which returns JSON like this:
+
+{"status":"SUCCESS","transactions":[
+    {"id":"UUID1","transactionDate":"2020-08-01","postDate":"2020-08-27","amount":123.00,"description":"ESC DISB - CUSTOMER","creditDebitType":"C","status":"POSTED","transactionCode":"5850","imageAvailable":false,"escrowAmount":123.00},
+    {"id":"UUID2","transactionDate":"2020-08-01","postDate":"2020-08-27","description":"BALANCE AFTER","creditDebitType":"B","status":"POSTED","transactionCode":"9999","imageAvailable":false}
+]}
+
+This importer expects those transactions to be extracted and stored in JSONL files (one line per transactoin object). 
+
+e.g. 
+
+curl API | jq '.transactions[]' -c > data/fifththird/transactions.jsonl
+
+transactions.jsonl:
+{"id":"UUID1","transactionDate":"2020-08-01","postDate":"2020-08-27","amount":123.00,"description":"ESC DISB - CUSTOMER","creditDebitType":"C","status":"POSTED","transactionCode":"5850","imageAvailable":false,"escrowAmount":123.00},
+{"id":"UUID2","transactionDate":"2020-08-01","postDate":"2020-08-27","description":"BALANCE AFTER","creditDebitType":"B","status":"POSTED","transactionCode":"9999","imageAvailable":false}
+
+CAVEATS:
+
+The above transaction IDs seem to be randomly generated each session, so you can't use "id" to de-dupe data. Some combination of other
+fields (postDate+amount+transactionCode+description) should be fine for de-duping if you automate the download process, as I don't imagine
+they ever change a record once it's posted to your account.
+
+Account names are hard-coded in this source.
 """
 
 from typing import List, Union, Optional, Set
