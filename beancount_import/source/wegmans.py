@@ -101,8 +101,8 @@ def load_transactions(dir: str, currency: str = 'USD') -> List[Dict]:
 def get_info(raw_entry: Dict) -> dict:
     return dict(
         type='application/json',
-        filename=raw_entry.filename,
-        line=raw_entry.line,
+        filename=raw_entry['filename'],
+        line=raw_entry['line'],
     )
 
 def _make_import_result(wegmans_entry: Dict) -> ImportResult:
@@ -114,8 +114,8 @@ def _make_import_result(wegmans_entry: Dict) -> ImportResult:
 
     postings = []
 
-    # TODO: a lot more "final_totals" to include if w ewant
-    charge_meta = collections.OrderedDict()
+    # TODO: a lot more "final_totals" to include if we want
+    charge_meta: collections.OrderedDict[str,str] = collections.OrderedDict()
     if 'payment_instruments' in wegmans_entry:
         charge_meta['wegmans_last_four'] = ", ".join( [ p['last_four_digits'] for p in wegmans_entry['payment_instruments'] ] )
     charge_meta['wegmans_sales_tax']     = wegmans_entry['final_totals'].get('tax_total', D(0))

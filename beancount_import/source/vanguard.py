@@ -145,11 +145,11 @@ def load_transactions(filename: str, currency: str = 'USD') -> List[VanguardEntr
                 data['filename'] = filename
 
                 # add in any missing fields
-                for f in VanguardEntry._fields:
-                    if not f in data:
-                        data[f] = None
-                    if f.endswith("Date"):
-                        data[f] = date(data[f])
+                for field in VanguardEntry._fields:
+                    if not field in data:
+                        data[field] = None
+                    if field.endswith("Date"):
+                        data[field] = date(data[field])
                         
                 entries.append( VanguardEntry(**data) )
         entries.reverse()
